@@ -17,34 +17,29 @@ from sklearn.neural_network import MLPRegressor
 
 os.chdir('/home/prudhvi/Documents')
 
+# reading the data using inbuilt python parse function
 data = pd.read_csv('WA_Accounts-Receivable.csv' , parse_dates = ['InvoiceDate','DueDate','SettledDate'])
 
-data.head(10)
-
+#Seperating categorical
 clean_data = data.iloc[:,[0,1,4,5,6,7,8,9,10,11]]
 
+#Taking time stamp and extracting day,month and year
 clean_data['Invoice_day'] = clean_data.apply(lambda x : x['InvoiceDate'].day,axis = 1)
-
 clean_data['Invoice_month'] = clean_data.apply(lambda x : x['InvoiceDate'].month,axis = 1)
-
 clean_data['Invoice_year'] = clean_data.apply(lambda x : x['InvoiceDate'].year,axis = 1)
 
+#Deleting the dates after parsing
 del clean_data['InvoiceDate']
 del clean_data['DueDate']
 
-
+# Parsing the settled day
 clean_data['Settled_day'] = clean_data.apply(lambda x : x['SettledDate'].day,axis = 1)
-
 clean_data['Settled_month'] = clean_data.apply(lambda x : x['SettledDate'].month,axis = 1)
-
 clean_data['Settled_year'] = clean_data.apply(lambda x : x['SettledDate'].year,axis = 1)
-
-
+#Deleting settledDate after parsiing
 del clean_data['SettledDate']
 
-
-clean_data.head(5)
-
+""" Using label encoder for categorical data """
 
 le = preprocessing.LabelEncoder()
 clean_data['customerID_enc'] = le.fit_transform(clean_data['customerID'])
@@ -58,6 +53,20 @@ del clean_data['PaperlessBill']
 enc = OneHotEncoder()
 
 encoded_data = enc.fit_transform(clean_data.iloc[:,[0,2,4,5,6,7,8,9,10,11,12]])
+
+
+""" Feature names code """
+
+cols = [0,2,4,5,6,7,8,9,10,11,12]
+features = [ ]
+for i in cols :
+    cols_names = list(clean_data.columns)
+    l = len(Counter(clean_data.iloc[:,i]))
+    for k in range(l) :
+        features.append(str(cols_names[i]) + '_' + str(k+1))
+
+
+
 
 encoded_data = pd.DataFrame(encoded_data.toarray())
 
@@ -151,3 +160,4 @@ nn_adaboost = AdaBoostRegressor(nn_regr,n_estimators = 100, loss= 'exponential' 
 nn_adaboost.fit(X,y)
 
 print nn_adaboost.score(X_test,y_test)
+

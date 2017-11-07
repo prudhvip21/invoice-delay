@@ -12,6 +12,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import Ridge
 
 os.chdir('/home/prudhvi/Documents')
 
@@ -97,9 +98,28 @@ clf2 = GridSearchCV(regr2, param_grid= parameters_ada, cv=5, scoring= 'neg_mean_
 
 clf2.fit(X_train,y_train)
 
+print clf2.best_params_
 
 regr2 = AdaBoostRegressor(regr1,n_estimators = 100, loss= 'exponential' ,learning_rate =  0.7)
 
 regr2.fit(X_train,y_train)
 
 print regr2.score(X_test,y_test)
+
+
+""" Ridge model """
+ridge_regr = Ridge()
+parameters_ridge = { 'alpha' : [0.25,0.5,0.75,1,1.25,2] , 'solver' : ['auto','svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag'] }
+
+ridge_regr = GridSearchCV(ridge_regr, param_grid= parameters_ridge, cv=5, scoring= 'neg_mean_squared_error')
+
+ridge_regr.fit(X_train,y_train)
+
+ridge_regr.best_params_
+
+ridge_regr = Ridge(alpha=0.25 , solver= 'svd')
+ada_ridge = AdaBoostRegressor(ridge_regr,n_estimators = 100, loss= 'exponential' ,learning_rate =  0.7)
+
+ada_ridge.fit(X_train,y_train)
+
+print ada_ridge.score(X_test,y_test)

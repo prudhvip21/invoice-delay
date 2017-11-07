@@ -13,6 +13,7 @@ from sklearn.ensemble import AdaBoostRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import Ridge
+from sklearn.neural_network import MLPRegressor
 
 os.chdir('/home/prudhvi/Documents')
 
@@ -123,3 +124,30 @@ ada_ridge = AdaBoostRegressor(ridge_regr,n_estimators = 100, loss= 'exponential'
 ada_ridge.fit(X_train,y_train)
 
 print ada_ridge.score(X_test,y_test)
+
+""" Neural Network model """
+
+
+nn_regr = MLPRegressor()
+
+parameters_nn = { 'activation' : ['logistic', 'tanh', 'relu'],'alpha' : [0.001,0.005,0.01,0.025,0.05], 'learning_rate' : ['constant', 'invscaling', 'adaptive'] , 'momentum' : [0.25,0.5,0.75,1]}
+
+nn_regr = GridSearchCV(nn_regr, param_grid= parameters_nn, cv=5, scoring= 'neg_mean_squared_error')
+
+
+
+X = X_train.as_matrix().astype(np.float)
+y = y_train.as_matrix().astype(np.float)
+
+nn_regr.fit(X,y)
+
+nn_regr.best_params_
+
+nn_regr = MLPRegressor(activation = 'tanh',alpha = 0.001,
+ learning_rate = 'adaptive',momentum = 0.5)
+
+nn_adaboost = AdaBoostRegressor(nn_regr,n_estimators = 100, loss= 'exponential' ,learning_rate =  0.7)
+
+nn_adaboost.fit(X,y)
+
+print nn_adaboost.score(X_test,y_test)
